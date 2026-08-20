@@ -29,7 +29,12 @@ services:
       - kimai-plugins:/opt/kimai/var/plugins
     environment:
       - APP_SECRET=${APP_SECRET}
-      - TRUSTED_HOSTS=${DOMAIN}
+      # A regex, not a literal host (Kimai feeds this straight into Symfony's
+      # trusted_hosts). 127.0.0.1 has to be allowed too, or the container's
+      # own healthcheck -- which curls localhost directly, bypassing Caddy --
+      # gets a 400 and Docker reports the container "unhealthy" forever even
+      # though real traffic through Caddy works fine.
+      - TRUSTED_HOSTS=^(127\.0\.0\.1|${DOMAIN})$$
       - TRUSTED_PROXIES=caddy,localhost,127.0.0.1
       - ADMINMAIL=${ADMIN_EMAIL}
       - ADMINPASS=${ADMIN_PASSWORD}
