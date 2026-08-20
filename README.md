@@ -58,6 +58,20 @@ Short version:
 5. `cp .env.example .env`, fill in real values, `./scripts/03-deploy.sh`.
 6. Log in, change the admin password, create the 3 employee accounts.
 
+## Local development
+
+To test the stack on your own machine before touching GCP -- Caddy can't get
+a TLS cert for `localhost`, so this runs Kimai directly over plain HTTP
+instead of the full production stack:
+
+```bash
+cp .env.example .env      # dummy values are fine locally
+./scripts/local-up.sh
+```
+
+Visit `http://localhost:8001`. See `docker-compose.local.yml` for what it
+changes (skips Caddy, exposes Kimai's port directly).
+
 ## Operating it
 
 See **[docs/RUNBOOK.md](docs/RUNBOOK.md)** for backups, updates, and

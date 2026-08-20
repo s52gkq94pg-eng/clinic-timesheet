@@ -1,0 +1,24 @@
+# Local-only override -- NOT used in production.
+#
+# Production (scripts/03-deploy.sh) runs plain `docker compose up -d` on the
+# VM, which never looks at this file, so it can't accidentally affect the
+# real deploy. Locally, use scripts/local-up.sh, or invoke directly:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d sqldb kimai
+#
+# Why not just run the full stack? Caddy's job is requesting a Let's Encrypt
+# certificate for a real public DOMAIN -- it cannot do that for `localhost`,
+# so we skip it and talk to Kimai directly over plain HTTP instead.
+
+services:
+  kimai:
+    ports:
+      - "8001:8001"
+    environment:
+      # TRUSTED_HOSTS feeds Symfony's trusted_hosts, which is a regex, not a
+      # comma list -- ".*" is fine for a machine only you can reach.
+      - TRUSTED_HOSTS=.*
+      # The prod compose file caps this at 192M to fit the 1 GB VM; that's
+      # too tight even for cache compilation and crashes with a fatal PHP
+      # memory error. Plenty of headroom on a dev machine.
+      - memory_limit=512M

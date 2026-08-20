@@ -9,7 +9,7 @@
 set -euo pipefail
 
 # ---- edit these ----
-PROJECT_ID="your-gcp-project-id"
+PROJECT_ID="clinic-timesheet-0b3d06"
 REGION="us-central1"        # must be us-central1, us-east1, or us-west1 for Always Free
 ZONE="us-central1-a"
 INSTANCE_NAME="clinic-timesheet"
