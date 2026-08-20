@@ -33,7 +33,12 @@ services:
       - TRUSTED_PROXIES=caddy,localhost,127.0.0.1
       - ADMINMAIL=${ADMIN_EMAIL}
       - ADMINPASS=${ADMIN_PASSWORD}
-      - memory_limit=192M
+      # 192M looked safe on paper for a 1GB VM but isn't in practice: Twig
+      # cache compilation on first boot fatals with "Allowed memory size
+      # exhausted" at that limit (confirmed both locally and on the VM).
+      # 384M gives real headroom; the 2GB swap file is the backstop if
+      # anything still spikes past it.
+      - memory_limit=384M
       - DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@sqldb/${DB_NAME}?charset=utf8mb4&serverVersion=10.11.6-MariaDB
 
   caddy:

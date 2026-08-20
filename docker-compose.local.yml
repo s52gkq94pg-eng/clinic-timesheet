@@ -18,7 +18,6 @@ services:
       # TRUSTED_HOSTS feeds Symfony's trusted_hosts, which is a regex, not a
       # comma list -- ".*" is fine for a machine only you can reach.
       - TRUSTED_HOSTS=.*
-      # The prod compose file caps this at 192M to fit the 1 GB VM; that's
-      # too tight even for cache compilation and crashes with a fatal PHP
-      # memory error. Plenty of headroom on a dev machine.
+      # Prod now runs 384M (see docker-compose.yml); this just gives even
+      # more headroom on a dev machine, which has plenty to spare.
       - memory_limit=512M
