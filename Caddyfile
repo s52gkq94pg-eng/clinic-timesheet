@@ -1,0 +1,3 @@
+{$DOMAIN} {
+	reverse_proxy kimai:8001
+}

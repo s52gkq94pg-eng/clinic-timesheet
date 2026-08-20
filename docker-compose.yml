@@ -1,0 +1,59 @@
+services:
+  sqldb:
+    image: mariadb:10.11
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./config/mariadb-lowmem.cnf:/etc/mysql/conf.d/99-lowmem.cnf:ro
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    command: --default-storage-engine innodb
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  kimai:
+    image: kimai/kimai2:stable
+    restart: unless-stopped
+    depends_on:
+      sqldb:
+        condition: service_healthy
+    volumes:
+      - kimai-data:/opt/kimai/var/data
+      - kimai-plugins:/opt/kimai/var/plugins
+    environment:
+      - APP_SECRET=${APP_SECRET}
+      - TRUSTED_HOSTS=${DOMAIN}
+      - TRUSTED_PROXIES=caddy,localhost,127.0.0.1
+      - ADMINMAIL=${ADMIN_EMAIL}
+      - ADMINPASS=${ADMIN_PASSWORD}
+      - memory_limit=192M
+      - DATABASE_URL=mysql://${DB_USER}:${DB_PASSWORD}@sqldb/${DB_NAME}?charset=utf8mb4&serverVersion=10.11.6-MariaDB
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - kimai
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  mysql-data:
+  kimai-data:
+  kimai-plugins:
+  caddy-data:
+  caddy-config:
